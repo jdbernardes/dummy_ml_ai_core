@@ -1,0 +1,10 @@
+apiVersion: ai.sap.com/v1alpha1
+kind: ServingTemplate
+metadata:
+  name: penguin-serving
+spec:
+  containers:
+    - image: juliobernardes/penguin-model-api:latest
+      name: predictor
+      ports:
+        - containerPort: 5000
