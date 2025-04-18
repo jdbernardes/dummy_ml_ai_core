@@ -9,7 +9,7 @@ metadata:
     executables.ai.sap.com/name: "Penguin Classifier (FastAPI)"
   labels:
     scenarios.ai.sap.com/id: "penguin-classifier"
-    ai.sap.com/version: "1.0"
+    ai.sap.com/version: "2.0"
 spec:
   imagePullSecrets:
     - name: juliodockerregistry  # 🔐 Your DockerHub image pull secret name
@@ -30,3 +30,10 @@ spec:
           - "--port=5000"
         ports:
           - containerPort: 5000
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
