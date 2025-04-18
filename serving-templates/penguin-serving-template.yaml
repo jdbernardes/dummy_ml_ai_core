@@ -1,29 +1,32 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: first-pipeline # Executable ID (max length 64 lowercase-hyphen-separated), please modify this to any value if you are not the only user of your SAP AI Core instance. Example: `first-pipeline-1234`
+  name: penguin-pipeline-001  # 🔁 Make sure this is unique in your tenant
   annotations:
-    scenarios.ai.sap.com/description: "Introduction to SAP AI Core"
-    scenarios.ai.sap.com/name: "Tutorial"
-    executables.ai.sap.com/description: "Greets the user"
-    executables.ai.sap.com/name: "Hello Pipeline"
+    scenarios.ai.sap.com/description: "Serving a penguin classifier with FastAPI via SAP AI Core"
+    scenarios.ai.sap.com/name: "Penguin Classifier"
+    executables.ai.sap.com/description: "FastAPI app that predicts penguin species using sklearn"
+    executables.ai.sap.com/name: "Penguin Classifier (FastAPI)"
   labels:
-    scenarios.ai.sap.com/id: "learning"
-    ai.sap.com/version: "2.0"
+    scenarios.ai.sap.com/id: "penguin-classifier"
+    ai.sap.com/version: "1.0"
 spec:
-  entrypoint: mypipeline
+  imagePullSecrets:
+    - name: juliodockerregistry  # 🔐 Your DockerHub image pull secret name
+  entrypoint: penguinpipeline
   templates:
-  - name: mypipeline
-    steps:
-    - - name: greet
-        template: greeter
+    - name: penguinpipeline
+      steps:
+        - - name: start-fastapi
+            template: fastapi-predictor
 
-  - name: greeter
-    container:
-      image: docker.io/python:latest
-      command:
-        - python3
-        - '-c'
-      args:
-       - |
-        print("Hello from SAP AI Core 2.0")
+    - name: fastapi-predictor
+      container:
+        image: docker.io/juliobernardes/penguin-classifier:latest  # 🐳 Replace with your actual Docker image + tag
+        command: ["uvicorn"]
+        args:
+          - "src.main:app"
+          - "--host=0.0.0.0"
+          - "--port=5000"
+        ports:
+          - containerPort: 5000
