@@ -11,29 +11,39 @@ metadata:
     scenarios.ai.sap.com/id: "penguin-classifier"
     ai.sap.com/version: "2.0"
 spec:
-  imagePullSecrets:
-    - name: juliodockerregistry  # 🔐 Your DockerHub image pull secret name
-  entrypoint: penguinpipeline
-  templates:
-    - name: penguinpipeline
-      steps:
-        - - name: start-fastapi
-            template: fastapi-predictor
-
-    - name: fastapi-predictor
-      container:
-        image: docker.io/juliobernardes/penguin-classifier:latest  # 🐳 Replace with your actual Docker image + tag
-        command: ["uvicorn"]
-        args:
-          - "src.main:app"
-          - "--host=0.0.0.0"
-          - "--port=5000"
-        ports:
-          - containerPort: 5000
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "1"
+  inputs:
+    artifacts:
+      - name: penguinclassifier # placeholder name, do not add `-` in value use only alphanumeric chars
+    parameters:
+      - name: greetmessage # placeholder name
+        type: string # required for every parameters
+  template:
+    apiVersion: "serving.kserve.io/v1beta1"
+    metadata:
+      annotations: |
+        autoscaling.knative.dev/metric: concurrency   # condition when to scale
+        autoscaling.knative.dev/target: 1
+        autoscaling.knative.dev/targetBurstCapacity: 0
+      labels: |
+        ai.sap.com/resourcePlan: starter # computing power
+    spec: |
+      predictor:
+        imagePullSecrets:
+          - name: juliodockerregistry   # your docker registry secret
+        minReplicas: 1
+        maxReplicas: 5    # how much to scale
+        containers:
+        - name: kserve-container
+          image: "docker.io/juliobernardes/penguin-classifier:latest"
+          command: ["uvicorn"]
+          args:
+            - "src.main:app"
+            - "--host=0.0.0.0"
+            - "--port=5000"
+          ports:
+            - containerPort: 5000
+          env:
+            - name: STORAGE_URI # Required
+              value: "{{inputs.artifacts.housepricemodel}}" # Required reference from artifact name, see above
+            - name: greetingmessage # different name to avoid confusion
+              value: "{{inputs.parameters.greetmessage}}"
