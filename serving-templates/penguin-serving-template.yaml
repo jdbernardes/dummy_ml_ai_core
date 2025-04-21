@@ -7,9 +7,10 @@ metadata:
     scenarios.ai.sap.com/name: "Penguin Classifier"
     executables.ai.sap.com/description: "FastAPI app that predicts penguin species using sklearn"
     executables.ai.sap.com/name: "Penguin Classifier (FastAPI)"
+    artifacts.ai.sap.com/penguinclassifier.kind: "server"
   labels:
     scenarios.ai.sap.com/id: "penguin-classifier"
-    ai.sap.com/version: "2.0"
+    ai.sap.com/version: "3.0"
 spec:
   inputs:
     artifacts:
@@ -44,6 +45,6 @@ spec:
             - containerPort: 5000
           env:
             - name: STORAGE_URI # Required
-              value: "{{inputs.artifacts.housepricemodel}}" # Required reference from artifact name, see above
+              value: "{{inputs.artifacts.penguinclassifier}}" # Required reference from artifact name, see above
             - name: greetingmessage # different name to avoid confusion
               value: "{{inputs.parameters.greetmessage}}"
