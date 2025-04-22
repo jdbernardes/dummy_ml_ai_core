@@ -9,7 +9,18 @@ readme = "README.md"
 python = "^3.12"
 scikit-learn = "^1.6.1"
 fastapi = {extras = ["standard"], version = "^0.115.12"}
+taskipy = "^1.14.1"
 
+
+[tool.poetry.group.model.dependencies]
+scikit-learn = "^1.6.1"
+taskipy = "^1.14.1"
+pandas = "^2.2.3"
+
+
+[tool.poetry.group.server.dependencies]
+fastapi = {extras = ["standard"], version = "^0.115.12"}
+taskipy = "^1.14.1"
 
 [build-system]
 requires = ["poetry-core"]
